@@ -67,7 +67,7 @@ fun FormularioPancracio(alAgregar: (Pelicula) -> Unit) {
         OutlinedTextField(value = director, onValueChange = { director = it },
             label = { Text("Director") }, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(value = anho, onValueChange = { anho = it },
-            label = { Text("Anho de lanzamiento") }, modifier = Modifier.fillMaxWidth())
+            label = { Text("Año de lanzamiento") }, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(value = genero, onValueChange = { genero = it },
             label = { Text("Genero") }, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(value = duracion, onValueChange = { duracion = it },
