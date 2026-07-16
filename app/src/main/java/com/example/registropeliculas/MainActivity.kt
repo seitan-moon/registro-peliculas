@@ -11,6 +11,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Movie
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material3.ExperimentalMaterial3Api
 import com.example.registropeliculas.ui.theme.RegistroPeliculasTheme
 
 // clase que representa una pelicula
@@ -22,13 +31,37 @@ data class Pelicula(
     val duracion: String
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             RegistroPeliculasTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    PantallaPrincipal()
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text("PelisPedia 3.0") },
+                            navigationIcon = {
+                                Icon(
+                                    Icons.Filled.Movie,
+                                    contentDescription = null,
+                                    modifier = Modifier.padding(start = 12.dp)
+                                )
+                            },
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                titleContentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        )
+                    }
+                ) { paddingInterno ->
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingInterno)
+                    ) {
+                        PantallaPrincipal()
+                    }
                 }
             }
         }
@@ -37,11 +70,12 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun PantallaPrincipal() {
-    // lista de peliculas registradas
     val peliculasGertrudis = remember { mutableStateListOf<Pelicula>() }
 
     Column(modifier = Modifier.padding(16.dp)) {
         FormularioPancracio(alAgregar = { peliculasGertrudis.add(it) })
+        Spacer(modifier = Modifier.height(16.dp))
+        Divider()
         Spacer(modifier = Modifier.height(16.dp))
         ListaDePeliculas(
             peliculas = peliculasGertrudis,
@@ -58,35 +92,64 @@ fun FormularioPancracio(alAgregar: (Pelicula) -> Unit) {
     var genero by remember { mutableStateOf("") }
     var duracion by remember { mutableStateOf("") }
 
-    Column {
-        Text("Registro de Peliculas", style = MaterialTheme.typography.headlineSmall)
-        Spacer(modifier = Modifier.height(8.dp))
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
 
-        OutlinedTextField(value = titulo, onValueChange = { titulo = it },
-            label = { Text("Titulo") }, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(value = director, onValueChange = { director = it },
-            label = { Text("Director") }, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(value = anho, onValueChange = { anho = it },
-            label = { Text("Año de lanzamiento") }, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(value = genero, onValueChange = { genero = it },
-            label = { Text("Genero") }, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(value = duracion, onValueChange = { duracion = it },
-            label = { Text("Duracion (min)") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(
+                value = titulo, onValueChange = { titulo = it },
+                label = { Text("Titulo") },
+                leadingIcon = { Icon(Icons.Filled.Star, contentDescription = null) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = director, onValueChange = { director = it },
+                label = { Text("Director") },
+                leadingIcon = { Icon(Icons.Filled.Person, contentDescription = null) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
 
-        Button(
-            onClick = {
-                // solo agrega si el titulo no esta vacio
-                if (titulo.isNotBlank()) {
+            OutlinedTextField(
+                value = anho, onValueChange = { anho = it },
+                label = { Text("Anho de lanzamiento") },
+                leadingIcon = { Icon(Icons.Filled.DateRange, contentDescription = null) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = genero, onValueChange = { genero = it },
+                label = { Text("Genero") },
+                leadingIcon = { Icon(Icons.Filled.Info, contentDescription = null) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = duracion, onValueChange = { duracion = it },
+                label = { Text("Duracion (min)") },
+                leadingIcon = { Icon(Icons.Filled.Timer, contentDescription = null) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
                     alAgregar(Pelicula(titulo, director, anho, genero, duracion))
-                    // limpia los campos
                     titulo = ""; director = ""; anho = ""; genero = ""; duracion = ""
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Agregar")
+                },
+                enabled = titulo.isNotBlank(), // se activa solo si hay titulo
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Agregar")
+            }
         }
     }
 }
