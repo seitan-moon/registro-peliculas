@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
@@ -20,6 +23,12 @@ import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import com.example.registropeliculas.ui.theme.RegistroPeliculasTheme
 
 // clase que representa una pelicula
@@ -30,7 +39,6 @@ data class Pelicula(
     val genero: String,
     val duracion: String
 )
-
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,28 +77,32 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PantallaPrincipal() {
-    val peliculasGertrudis = remember { mutableStateListOf<Pelicula>() }
+fun PantallaPrincipal(peliculasViewModel: PeliculasViewModel = viewModel()) {
+    val peliculasGertrudis by peliculasViewModel.peliculas.collectAsState()
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        FormularioPancracio(alAgregar = { peliculasGertrudis.add(it) })
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        FormularioPancracio(alAgregar = { peliculasViewModel.agregarPelicula(it) })
         Spacer(modifier = Modifier.height(16.dp))
         Divider()
         Spacer(modifier = Modifier.height(16.dp))
         ListaDePeliculas(
             peliculas = peliculasGertrudis,
-            alEliminar = { peliculasGertrudis.remove(it) }
+            alEliminar = { peliculasViewModel.eliminarPelicula(it) }
         )
     }
 }
 
 @Composable
 fun FormularioPancracio(alAgregar: (Pelicula) -> Unit) {
-    var titulo by remember { mutableStateOf("") }
-    var director by remember { mutableStateOf("") }
-    var anho by remember { mutableStateOf("") }
-    var genero by remember { mutableStateOf("") }
-    var duracion by remember { mutableStateOf("") }
+    var titulo by rememberSaveable { mutableStateOf("") }
+    var director by rememberSaveable { mutableStateOf("") }
+    var anho by rememberSaveable { mutableStateOf("") }
+    var genero by rememberSaveable { mutableStateOf("") }
+    var duracion by rememberSaveable { mutableStateOf("") }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -157,8 +169,8 @@ fun FormularioPancracio(alAgregar: (Pelicula) -> Unit) {
 @Composable
 fun ListaDePeliculas(peliculas: List<Pelicula>, alEliminar: (Pelicula) -> Unit) {
     // lista vertical con LazyColumn
-    LazyColumn {
-        items(peliculas) { peli ->
+    Column {
+        peliculas.forEach { peli ->
             ItemPelicula(peli, alEliminar)
             Spacer(modifier = Modifier.height(8.dp))
         }
