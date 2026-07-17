@@ -45,6 +45,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.key
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.lazy.items
 import com.example.registropeliculas.ui.theme.RegistroPeliculasTheme
 
 // clase que representa una pelicula
@@ -96,29 +97,27 @@ class MainActivity : ComponentActivity() {
 fun PantallaPrincipal(peliculasViewModel: PeliculasViewModel = viewModel()) {
     val peliculasGertrudis by peliculasViewModel.peliculas.collectAsState()
 
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
-        Image(
-            painter = painterResource(R.drawable.banner_peliculas), // ajustá el nombre
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(160.dp)
-                .clip(RoundedCornerShape(12.dp))
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        FormularioPancracio(alAgregar = { peliculasViewModel.agregarPelicula(it) })
-        Spacer(modifier = Modifier.height(16.dp))
-        Divider()
-        Spacer(modifier = Modifier.height(16.dp))
-        ListaDePeliculas(
-            peliculas = peliculasGertrudis,
-            alEliminar = { peliculasViewModel.eliminarPelicula(it) }
-        )
+    LazyColumn(modifier = Modifier.padding(16.dp)) {
+        item {
+            Image(
+                painter = painterResource(R.drawable.banner_peliculas),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp)
+                    .clip(RoundedCornerShape(12.dp))
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            FormularioPancracio(alAgregar = { peliculasViewModel.agregarPelicula(it) })
+            Spacer(modifier = Modifier.height(16.dp))
+            Divider()
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+        items(peliculasGertrudis, key = { it.hashCode() }) { peli ->
+            ItemPelicula(peli, alEliminar = { peliculasViewModel.eliminarPelicula(it) })
+            Spacer(modifier = Modifier.height(8.dp))
+        }
     }
 }
 
